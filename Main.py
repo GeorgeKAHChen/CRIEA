@@ -36,21 +36,6 @@ import Pretreatment
 import Algorithm
 import Functions
 
-#Constant Definition and instruction
-Method = "Lap"
-"""
-Method = "Pob": Using the method worked by Tao Ren
-Method = "Lap": Using the method worked by Kazuki Amakawa, with Laplacian Matrix
-Method = "K-M": Using the K-means method 		#Not finished
-"""
-
-Surround = "Nor"
-"""
-Surround = "Nor": Normal calculation function
-Surround = "Pre": Presentation method
-Surround = "VPS": VPS auto calculation method 	#Nof finished
-"""
-
 
 def MainFunction():
 	#CRIEA Start!
@@ -71,6 +56,18 @@ def MainFunction():
 	for kase in range(0, len(NameArr)):
 		img = np.array(Image.open(NameArr[kase]).convert("L"))	
 		img = Pretreatment.BFSmooth(img)
+		
+		[Tobimg, NodeInfo] = Algorithm.Toboggan(img)
+		[Upground, Background] = Algorithm.HandSeed(Tobimg, img, Surround)
+		Seeds = Upground | Background		
+		ProbBlock = []
+		VarL = 0
+		
+		if Method == "Lap":
+			NodeInfo, VarL = Functions.SeedFirst(NodeInfo, Seeds)
+			LapEqu = Algorithm.Laplacian(NodeInfo, VarL)
+			ProbBlock = Functions.LinearEquation(LapEqu, len(NodeInfo) - VarL, VarL)
+		"""
 		BlockInfo = Pretreatment.Partial(img)
 		BlockSize = len(BlockInfo) - 1
 
@@ -86,13 +83,7 @@ def MainFunction():
 			img = np.array(Image.open("Output/Block_" + str(i) + ".png").convert("L"))
 			[Tobimg, NodeInfo] = Algorithm.Toboggan(img)
 			#Init.ArrOutput(Tobimg)
-			"""
-			for i in range(0, len(Tobimg)):
-				for j in range(0, len(Tobimg[i])):
-					Tobimg[i][j] = NodeInfo[Tobimg[i][j]][1]
-			Pretreatment.FigurePrint(img, 2)
-			return 
-			"""
+
 			[Upground, Background] = Algorithm.HandSeed(Tobimg, img, Surround)
 			Seeds = Upground | Background
 			
@@ -124,20 +115,9 @@ def MainFunction():
 			Pretreatment.Output(Figure, "Block_" + str(i) + ".png", 1)
 
 		Pretreatment.Recovery(BlockSize, BlockInfo)
+	"""
 
-
-def VPSVer():
-	#For VPS auto algorithm
-	#As the hand seed algorithm is not finished, this part of program also completed
-	#NoBlock Algorithm Start!
-	return
-
-
-if Surround == "Nor" or Surround == "Pre":
-	MainFunction()
-elif Surround == "VPS":
-	VPSVer()
-
+MainFunction()
 
 
 """

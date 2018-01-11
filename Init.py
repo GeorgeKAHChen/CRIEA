@@ -60,9 +60,14 @@ SystemJudge()
 
 	return 0 means this system is not windows system
 		   1 means this system is windows system
+
+JSONReading(FileName)
+	This Function will read .json file with the roral of files.
+
+	FileName = The Name or the location of .json file
+	
+	retura data: A string of .json infomation
 """
-
-
 def LogWrite(LogStr, kind):
 	import os
 	import time 
@@ -284,7 +289,27 @@ def SystemJudge():
 		return 0
 
 
+def JSONReading(FileName):
+	import json
+	import re
+	File = open(FileName, "r")
 
+	Note = False
+	ShortNote = False
+	String = False
+	NextLine = False
+	RetStr = ""
+	while 1:
+		FileLine = File.readline()
+		if not FileLine:
+			break
+		if re.match('/*', FileLine):
+			Note = Note ^ True
+		if re.match('*/', FileLine):
+			Note = Note ^ True
+		if re.match('//', FileLine):
+			ShortNote = ShortNote ^ True
+		
 
 
 

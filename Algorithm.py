@@ -134,14 +134,7 @@ from copy import deepcopy
 import Init
 import Pretreatment
 import Functions
-
-
-#Constant
-Alpha = 0.005
-#For grey
-Beta = 0.007
-#For distance
-#Both Alpha and Beta are probability function's parameter
+import Constant as .
 
 
 def Toboggan(img):
@@ -232,7 +225,7 @@ def WeightFunc(Point1, Point2):
 	X = pow( (Point1[2]-Point2[2]) , 2)
 	Y = pow( (Point1[3]-Point2[3]) , 2)
 	Distance = math.sqrt(X + Y)
-	return math.exp( - Alpha * Grey - Beta * Distance )
+	return math.exp( - Constant.Alpha * Grey - Constant.Beta * Distance )
 
 
 def GetProb(NodeInfo):

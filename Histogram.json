@@ -1,0 +1,38 @@
+//=================================================================
+//
+//		CNN and RW Image Edge Algorithm
+//		Copyright(c) KazukiAmakawa, all right reserved.
+//		Histogram.json
+//
+//=================================================================
+
+//This file will save the infomation of all histogram
+
+/*
+Grammer rules
+For Notes, you can write note with the grammer as python.
+And for main data, you can write them as the grammer of CPP.
+And for the seed infomation, you need copy and complete this model
+
+{
+	"FileName" : "SavingImageArray.KZK or ImageName.png(and so on)",
+	"data" : {
+	
+	}
+}
+
+The system will confident the root automaticlly.
+
+In the future, this file also become the output file of CNN or other auto seed
+choose algorithm.
+*/
+
+{
+	"FileName" : "SavingImageArray.KZK or ImageName.png(and so on)",
+	"data" : {
+		
+	}
+}
+
+
+
