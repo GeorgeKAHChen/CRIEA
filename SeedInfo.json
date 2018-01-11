@@ -1,0 +1,108 @@
+//=================================================================
+//
+//		CNN and RW Image Edge Algorithm
+//		Copyright(c) KazukiAmakawa, all right reserved.
+//		SeedInfo.json
+//
+//=================================================================
+
+//This file will save the infomation of all seeds
+
+/*
+Grammer rules
+For Notes, you can write note with the grammer as python.
+And for main data, you can write them as the grammer of CPP.
+And for the seed infomation, you need copy and complete this model
+
+{
+	"FileName" = "SavingImageArray.KZK or ImageName.png(and so on)",
+	"Upground" = [a1, b1], [a2, b2], [a3, b3] (and so on),
+	"Background" = [a1, b1], [a2, b2], [a3, b3] (and so on),
+}
+
+The system will confident the root automaticlly.
+
+In the future, this file also become the output file of CNN or other auto seed
+choose algorithm.
+*/
+
+//MainInput"
+{
+	"FileName" : "123.png",
+	"Upground" :  [[98,72], [32,174]],
+	"Background" : [[77,130], [120,35]],
+},
+/*
+{
+	"FileName" : "CameraMan.KZK", 
+	"Upground" : [[50,122], [132,143], [53,190], [154,131]],
+	"Background" : [[169,43], [175,184], [4,153]],
+},
+{
+	"FileName" : "Figure/Factory.png",
+	"Upground" : [[98,72], [32,174]],
+	"Background" : [[77,130], [120,35]],
+}
+
+
+#Camera Man
+Upground
+[50,122][132,143][53,190][154,131]
+Background
+[169,43][175,184][4,153]
+
+#Easy Figure
+Upground
+[25,25]
+Background
+[50,50]
+
+#Heart-Low
+Upground Set:
+[37,18][39,64][39,30][81,57][90,78][65,65][43,21][14,52]
+Background Set:
+[112,25][43,108][100,40][129,99][17,80]
+
+Upground Set:
+[42,12][17,56][51,37][82,48][68,73][38,41]
+Background Set:
+[112,25][43,108][115,45]
+
+Upground Set:
+[81,46][66,63][89,66][84,76][79,63]
+Background Set:
+[81,32][57,60][79,97][109,68]
+
+Upground Set:
+[37,38][81,61][35,62]
+Background Set:
+[126,29][31,108][12,92][125,51][142,61][64,6][98,8][134,17]
+
+Factory_Low
+Upground Set:
+[96,76]
+Background Set:
+[120,92]
+
+Upground Set:
+[96,76]
+Background Set:
+[123,34]
+
+Alpha = 0.005
+Beta = 0.007
+
+Upground Set:
+[98,72][32,174]
+Background Set:
+[77,130][120,35]
+*/
+
+
+
+
+
+
+
+
+
