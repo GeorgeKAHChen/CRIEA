@@ -30,7 +30,10 @@ choose algorithm.
 {
 	"FileName" : "SavingImageArray.KZK or ImageName.png(and so on)",
 	"data" : {
-		
+		"Block" : 1,
+		"Histogram" : [
+			1,2,3,4,5,6,7,
+		]
 	}
 }
 
