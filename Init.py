@@ -304,9 +304,9 @@ def JSONReading(FileName):
 		if not FileLine:
 			break
 		if re.match('/*', FileLine):
-			Note = Note ^ True
+			Note = True
 		if re.match('*/', FileLine):
-			Note = Note ^ True
+			Note = False
 		if re.match('//', FileLine):
 			ShortNote = ShortNote ^ True
 		

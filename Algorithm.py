@@ -134,7 +134,7 @@ from copy import deepcopy
 import Init
 import Pretreatment
 import Functions
-import Constant as .
+import Constant
 
 
 def Toboggan(img):

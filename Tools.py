@@ -39,4 +39,10 @@ def CNNSeed(img, TobImg, BlockSize, FileName):
 		elif InpInt == 3:
 			BlockInfo[i] = 3
 
-	
+	BuildFile("Histogram")
+	File = open("Histogram", "a")
+
+
+
+
+
