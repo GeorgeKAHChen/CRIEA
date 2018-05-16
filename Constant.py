@@ -9,8 +9,14 @@
 #CAUTION: DO NOT CHANGE THE PARAMETER CHECK FUNCTION
 
 
+#==============================================================================
+#File choosing
+ImageName = "Figure/aznyan.jpg"
+#This is the file you want the algorithm working on it.
 
-
+#==============================================================================
+#Debug model, True means open, False means close
+DEBUG = True
 
 #==============================================================================
 #Parameter check function, DO NOT CHANGE THIS FUCNTION
