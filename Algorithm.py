@@ -90,3 +90,125 @@ def GetSeed(img):
 			break
 
 	return Seed
+
+
+
+
+def Toboggan(img):
+	SavArr = [[-1 for n in range(len(img[0]))] for n in range(len(img))]
+	Gradient = [[0 for n in range(len(img[0]))] for n in range(len(img))]
+
+	#Get Gradient
+	img1 = cv2.Sobel(img, cv2.CV_16S, 1, 0)
+	img2 = cv2.Sobel(img, cv2.CV_16S, 0, 1)
+
+	for i in range(0, len(img1)):
+		for j in range(0, len(img1[i])):
+			Gradient[i][j] = math.sqrt(pow(img1[i][j], 2)+pow(img2[i][j], 2))
+
+	Tem = 0
+	Tem1 = -1
+	Color = [[0, 0]]
+	Loc = [[0, 0]]
+	#MainLoop
+	for i in range(0, len(SavArr)):
+		for j in range(0, len(SavArr[i])):
+			if SavArr[i][j] != -1:
+				continue
+
+			Stack = [[i, j]]
+			Tem += 1
+			Color.append([0, 0])
+			Loc.append([0, 0])
+			while 1:
+				if len(Stack) == 0:
+					break
+
+				Block = []
+				Vari = Stack[len(Stack)-1][0]
+				Varj = Stack[len(Stack)-1][1]
+				Stack.pop()
+				if SavArr[Vari][Varj] == -1:
+					SavArr[Vari][Varj] = Tem
+					Color[len(Color)-1][0] += 1
+					Color[len(Color)-1][1] += img[Vari][Varj]
+					Loc[len(Color)-1][0] += Vari
+					Loc[len(Color)-1][1] += Varj
+				else:
+					continue
+			
+				if Tem != Tem1:
+					print("Block:\t" + str(Tem), end = "\r")
+					Tem1 = Tem
+
+				for p in range(-1, 2):
+					for q in range(-1, 2):
+						Poi = 0
+						try:
+							Poi = Gradient[Vari+p][Varj+q]
+							Block.append([Gradient[Vari+p][Varj+q], Vari+p, Varj+q])
+						except:
+							continue
+						
+
+				Block.sort()
+				for k in range(0, len(Block)):
+					if SavArr[Block[k][1]][Block[k][2]] == -1 and Block[k][1] != Loc[len(Color)-1][0] and Block[k][2] != Loc[len(Color)-1][1]:
+						#This judgement may have some bug
+						Stack.append([Block[k][1], Block[k][2]])
+						break
+					
+	print("Block:\t" + str(Tem), end = "\n")
+	BlockInfo = [[0, 0, 0, 0, 0]]
+
+	for i in range(1, len(Color)):
+		Tem = [-1]
+		Tem.append(abs(int(Color[i][1]/Color[i][0])))
+		Tem.append(abs(int(Loc[i][0]/Color[i][0])))
+		Tem.append(abs(int(Loc[i][1]/Color[i][0])))
+		Tem.append(0)
+		BlockInfo.append(Tem)
+
+	for i in range(0, len(SavArr)):
+		for j in range(0, len(SavArr[i])):
+			if SavArr[i][j] == -1:
+				continue
+			BlockInfo[SavArr[i][j]][4] += 1
+
+	return [SavArr, BlockInfo]
+
+
+
+def ProbCal(TobBlock, TobSeed):
+	Varu = len(TobBlock) - len(TobSeed) - 1
+	Varl = len(TobSeed)
+	Puu = []
+	Pul = []
+
+	for i in range(0, len(TobBlock)):
+		PuuLine = []
+		PulLine = []
+		TTL = 0
+		for j in range(0, len(TobBlock)):
+			weight = math.exp(- Constant.alpha * (TobBlock[i][1] - TobBlock[j][1]) - Constant.beta * ((TobBlock[i][2] - TobBlock[j][2]) ** 2 + (TobBlock[i][3] - TobBlock[j][3]) ** 2)     )
+			TTL += weight
+			if TobBlock[i][0] == -1:
+				PuuLine.append(weight)
+			else:
+				PulLine.append(weight)
+
+		for p in range(0, len(PuuLine)):
+			PuuLine[p] /= TTL
+
+		for p in range(0, len(PulLine)):
+			PulLine[p] /= TTL
+
+		Puu.append(PuuLine)
+		Pul.append(PulLine)
+	
+	if Constant.DEBUG:
+		print("Probability matrix build succeed. Decision matrix building start")
+	return np.linalg.pinv(np.eye(Varu) - np.matrix(Puu)) * np.matrix(Pul)
+
+
+
