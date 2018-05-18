@@ -186,6 +186,8 @@ def ProbCal(TobBlock, TobSeed):
 	Pul = []
 
 	for i in range(0, len(TobBlock)):
+		if TobBlock[i][0] != -1:
+			continue
 		PuuLine = []
 		PulLine = []
 		TTL = 0
@@ -209,6 +211,54 @@ def ProbCal(TobBlock, TobSeed):
 	if Constant.DEBUG:
 		print("Probability matrix build succeed. Decision matrix building start")
 	return np.linalg.pinv(np.eye(Varu) - np.matrix(Puu)) * np.matrix(Pul)
+
+
+
+def Decision(TobBlock, ProbArr):
+	tem = 0
+	for i in range(0, len(TobBlock)):
+		if TobBlock[i][0] == -1:
+			MaxLoc = 0
+			MaxVal = 0
+			for j in range(0, len(ProbArr[tem])):
+				if ProbArr[tem][j] > MaxVal:
+					MaxVal = ProbArr[tem][j]
+					MaxLoc = j
+			TobBlock[i][0] = MaxLoc
+		else:
+			TobBlock[i][0] = tem
+			tem += 1
+
+	return TobBlock
+
+
+
+def TobBoundary(TobImage, TobBlock, BlockArea):
+	for i in range(0, len(TobImage)):
+		for j in range(0, len(TobImage[i])):
+			if TobImage[i][j] == -1:
+				continue
+
+			TobImage[i][j] = TobBlock[TobImage[i][j]][0]
+	
+	OutImg = [[255 for n in range(len(TobImage[1]))] for i in range(len(TobImage))]
+	for i in range(0, BlockArea):
+		BlankImg = [[0 for n in range(len(TobImage[1]))] for i in range(len(TobImage))]
+		for p in range(0, len(TobImage)):
+			for q in range(0, len(TobImage[p])):
+				if TobImage[p][q] == i:
+					BlankImg[p][q] = 255
+
+		BlankImg = cv2.Canny(np.uint8(BlankImg), 85, 170)
+		for p in range(0, len(BlankImg)):
+			for q in range(0, len(BlankImg[p])):
+				if BlankImg[p][q] > 200:
+					OutImg[p][q] = 0
+
+	return OutImg
+
+
+
 
 
 

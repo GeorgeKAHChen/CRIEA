@@ -60,7 +60,7 @@ def Main():
 	Seed = Algorithm.GetSeed(img)
 	TobSeed = []
 	for i in range(0, len(Seed)):
-		TobBlock[i][0] = 0
+		TobBlock[ TobImg [Seed[i][0]] [Seed[i][0]] ] [0] = 0
 		TobSeed.append(TobImg[Seed[i][0]][Seed[i][1]])
 
 
@@ -86,9 +86,23 @@ def Main():
 	if DEBUG:
 		print("Decision Part")
 	
+	#==============================================================================
+	#Block Decision
+	TobBlock = Algorithm.Decision(TobBlock, ProbArr)
+	
+	#==============================================================================
+	#Output Image print
+	OutImg = Algorithm.TobBoundary(TobImage, TobBlock, len(TobSeed)):
 
 
 
+	"""
+	#==============================================================================
+	#Decision
+	#==============================================================================
+	"""
+	OutImg = Pretreatment.CombineFigures(img, OutImg, 1)
+	misc.imsave("Saving/result.png", OutImg)	
 
 
 
