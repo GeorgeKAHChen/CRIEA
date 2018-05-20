@@ -92,7 +92,7 @@ def Main():
 	
 	#==============================================================================
 	#Output Image print
-	OutImg = Algorithm.TobBoundary(TobImage, TobBlock, len(TobSeed)):
+	OutImg = Algorithm.TobBoundary(TobImage, TobBlock, len(TobSeed))
 
 
 
@@ -110,3 +110,26 @@ def Main():
 
 
 Main()
+
+
+
+
+
+
+
+
+#445 102 414 25 37 36 200 48 155 184 261 327 4 256 238 196 160 305
+
+
+
+
+
+
+
+
+
+
+
+
+
+

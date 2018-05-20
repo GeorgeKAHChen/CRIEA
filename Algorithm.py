@@ -24,6 +24,8 @@ import random
 
 #import Files
 import Constant
+import Init
+
 
 
 def GetSeed(img):
@@ -32,9 +34,9 @@ def GetSeed(img):
 		#==============================================================================
 		#Image print
 		print("Now, input the seed points")
-		plt.imshow(img, cmap="gray")
-		plt.axis("off")
-		plt.show()
+		#plt.imshow(img, cmap="gray")
+		#plt.axis("off")
+		#plt.show()
 
 
 		#==============================================================================
@@ -106,76 +108,68 @@ def Toboggan(img):
 		for j in range(0, len(img1[i])):
 			Gradient[i][j] = math.sqrt(pow(img1[i][j], 2)+pow(img2[i][j], 2))
 
-	Tem = 0
-	Tem1 = -1
-	Color = [[0, 0]]
-	Loc = [[0, 0]]
+	Label = 0
+	TobBlock = [[-1, 0, 0, 0, 0]]
 	#MainLoop
 	for i in range(0, len(SavArr)):
 		for j in range(0, len(SavArr[i])):
+			print("TobBlock = " + str(Label), end = "\r")
 			if SavArr[i][j] != -1:
 				continue
 
 			Stack = [[i, j]]
-			Tem += 1
-			Color.append([0, 0])
-			Loc.append([0, 0])
+			ImaLabel = 0
 			while 1:
-				if len(Stack) == 0:
-					break
-
-				Block = []
-				Vari = Stack[len(Stack)-1][0]
-				Varj = Stack[len(Stack)-1][1]
-				Stack.pop()
-				if SavArr[Vari][Varj] == -1:
-					SavArr[Vari][Varj] = Tem
-					Color[len(Color)-1][0] += 1
-					Color[len(Color)-1][1] += img[Vari][Varj]
-					Loc[len(Color)-1][0] += Vari
-					Loc[len(Color)-1][1] += Varj
-				else:
-					continue
-			
-				if Tem != Tem1:
-					print("Block:\t" + str(Tem), end = "\r")
-					Tem1 = Tem
-
+				Neigh = []
 				for p in range(-1, 2):
 					for q in range(-1, 2):
-						Poi = 0
-						try:
-							Poi = Gradient[Vari+p][Varj+q]
-							Block.append([Gradient[Vari+p][Varj+q], Vari+p, Varj+q])
-						except:
+						if p == 0 and q == 0:
 							continue
-						
+						LocX = i + p
+						LocY = j + q
+						if LocX < 0 or LocY < 0 or LocX > len(SavArr) - 1 or LocY > len(SavArr[0]) - 1:
+							continue
+						else:
+							Neigh.append([Gradient[LocX][LocY], LocX, LocY])
 
-				Block.sort()
-				for k in range(0, len(Block)):
-					if SavArr[Block[k][1]][Block[k][2]] == -1 and Block[k][1] != Loc[len(Color)-1][0] and Block[k][2] != Loc[len(Color)-1][1]:
-						#This judgement may have some bug
-						Stack.append([Block[k][1], Block[k][2]])
-						break
-					
-	print("Block:\t" + str(Tem), end = "\n")
-	BlockInfo = [[0, 0, 0, 0, 0]]
 
-	for i in range(1, len(Color)):
-		Tem = [-1]
-		Tem.append(abs(int(Color[i][1]/Color[i][0])))
-		Tem.append(abs(int(Loc[i][0]/Color[i][0])))
-		Tem.append(abs(int(Loc[i][1]/Color[i][0])))
-		Tem.append(0)
-		BlockInfo.append(Tem)
 
-	for i in range(0, len(SavArr)):
-		for j in range(0, len(SavArr[i])):
-			if SavArr[i][j] == -1:
-				continue
-			BlockInfo[SavArr[i][j]][4] += 1
+				Neigh.sort()
+				#print(Neigh)
+				if SavArr[Neigh[0][1]][Neigh[0][2]] != -1:
+					ImaLabel = SavArr[Neigh[0][1]][Neigh[0][2]]
+					break
 
-	return [SavArr, BlockInfo]
+				if Neigh[0][1] != Stack[len(Stack) - 1][0] or Neigh[0][2] != Stack[len(Stack) - 1][1]:
+					Stack.append([Neigh[0][1], Neigh[0][2]])
+				else:
+					TobBlock.append([-1, 0, 0, 0, 0])
+					Label += 1
+					ImaLabel = Label
+					break
+
+
+			while len(Stack) != 0:
+				LocX = Stack[len(Stack) - 1][0]
+				LocY = Stack[len(Stack) - 1][1]
+				Grey = img[LocX][LocY]
+				Stack.pop()
+				SavArr[LocX][LocY] = ImaLabel
+				TobBlock[ImaLabel][1] += Grey
+				TobBlock[ImaLabel][2] += LocX
+				TobBlock[ImaLabel][3] += LocY
+				TobBlock[ImaLabel][4] += 1
+	
+	#Init.ArrOutput(TobBlock)
+	print("TobBlock = " + str(Label), end = "\n")
+	
+	for i in range(1, len(TobBlock)):
+		TobBlock[i][1] /= TobBlock[i][4]
+		TobBlock[i][2] /= TobBlock[i][4]
+		TobBlock[i][3] /= TobBlock[i][4]
+
+
+	return [SavArr, TobBlock]
 
 
 
@@ -185,13 +179,13 @@ def ProbCal(TobBlock, TobSeed):
 	Puu = []
 	Pul = []
 
-	for i in range(0, len(TobBlock)):
+	for i in range(1, len(TobBlock)):
 		if TobBlock[i][0] != -1:
 			continue
 		PuuLine = []
 		PulLine = []
 		TTL = 0
-		for j in range(0, len(TobBlock)):
+		for j in range(1, len(TobBlock)):
 			weight = math.exp(- Constant.alpha * (TobBlock[i][1] - TobBlock[j][1]) - Constant.beta * ((TobBlock[i][2] - TobBlock[j][2]) ** 2 + (TobBlock[i][3] - TobBlock[j][3]) ** 2)     )
 			TTL += weight
 			if TobBlock[i][0] == -1:
