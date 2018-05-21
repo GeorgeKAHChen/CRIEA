@@ -16,6 +16,7 @@ import math
 import matplotlib.patches as patches
 from scipy import misc
 from scipy import signal
+from scipy import solve
 from collections import deque
 from PIL import ImageFilter
 import cv2
@@ -204,7 +205,7 @@ def ProbCal(TobBlock, TobSeed):
 	
 	if Constant.DEBUG:
 		print("Probability matrix build succeed. Decision matrix building start")
-	return np.linalg.pinv(np.eye(Varu) - np.matrix(Puu)) * np.matrix(Pul)
+	return np.array(solve(Puu, Pul))
 
 
 
