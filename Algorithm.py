@@ -16,7 +16,7 @@ import math
 import matplotlib.patches as patches
 from scipy import misc
 from scipy import signal
-from scipy import solve
+from scipy.linalg import solve 
 from collections import deque
 from PIL import ImageFilter
 import cv2
@@ -124,8 +124,6 @@ def Toboggan(img):
 				Neigh = []
 				for p in range(-1, 2):
 					for q in range(-1, 2):
-						if p == 0 and q == 0:
-							continue
 						LocX = i + p
 						LocY = j + q
 						if LocX < 0 or LocY < 0 or LocX > len(SavArr) - 1 or LocY > len(SavArr[0]) - 1:
@@ -187,7 +185,7 @@ def ProbCal(TobBlock, TobSeed):
 		PulLine = []
 		TTL = 0
 		for j in range(1, len(TobBlock)):
-			weight = math.exp(- Constant.alpha * (TobBlock[i][1] - TobBlock[j][1]) - Constant.beta * ((TobBlock[i][2] - TobBlock[j][2]) ** 2 + (TobBlock[i][3] - TobBlock[j][3]) ** 2)     )
+			weight = math.exp(- Constant.alpha * pow(TobBlock[i][1] - TobBlock[j][1], 2) - Constant.beta * ( pow(TobBlock[i][2] - TobBlock[j][2], 2) + pow(TobBlock[i][3] - TobBlock[j][3], 2))     )
 			TTL += weight
 			if TobBlock[i][0] == -1:
 				PuuLine.append(weight)
