@@ -16,7 +16,8 @@ import math
 import matplotlib.patches as patches
 from scipy import misc
 from scipy import signal
-from scipy.linalg import solve 
+from scipy.linalg import solve
+from scipy.optimize import fsolve, leastsq 
 from collections import deque
 from PIL import ImageFilter
 import cv2
@@ -35,9 +36,9 @@ def GetSeed(img):
 		#==============================================================================
 		#Image print
 		print("Now, input the seed points")
-		#plt.imshow(img, cmap="gray")
-		#plt.axis("off")
-		#plt.show()
+		plt.imshow(img, cmap="gray")
+		plt.axis("off")
+		plt.show()
 
 
 		#==============================================================================
@@ -115,53 +116,76 @@ def Toboggan(img):
 	for i in range(0, len(SavArr)):
 		for j in range(0, len(SavArr[i])):
 			print("TobBlock = " + str(Label), end = "\r")
+			#print(str([i, j, SavArr[i][j], Label]), end = "\r")
 			if SavArr[i][j] != -1:
 				continue
 
 			Stack = [[i, j]]
+			s = i
+			t = j
 			ImaLabel = 0
+			#print(Stack)
 			while 1:
+				s = Stack[len(Stack) - 1][0]
+				t = Stack[len(Stack) - 1][1]
+
 				Neigh = []
+				
 				for p in range(-1, 2):
 					for q in range(-1, 2):
-						LocX = i + p
-						LocY = j + q
+						if p == 0 and q == 0:
+							continue
+						LocX = s + p
+						LocY = t + q
 						if LocX < 0 or LocY < 0 or LocX > len(SavArr) - 1 or LocY > len(SavArr[0]) - 1:
 							continue
 						else:
 							Neigh.append([Gradient[LocX][LocY], LocX, LocY])
+							
 
-
-
+				#print(Stack)
+				#input()
 				Neigh.sort()
-				#print(Neigh)
-				if SavArr[Neigh[0][1]][Neigh[0][2]] != -1:
-					ImaLabel = SavArr[Neigh[0][1]][Neigh[0][2]]
-					break
-
-				if Neigh[0][1] != Stack[len(Stack) - 1][0] or Neigh[0][2] != Stack[len(Stack) - 1][1]:
-					Stack.append([Neigh[0][1], Neigh[0][2]])
+				
+				if Gradient[Neigh[0][1]][Neigh[0][2]] > Gradient[s][t]:
+					if SavArr[s][t] == -1 or SavArr[s][t] == -2:
+						TobBlock.append([-1, 0, 0, 0, 0])
+						Label += 1
+						ImaLabel = Label
+						break
+					else:
+						ImaLabel = SavArr[s][t]
+						break
 				else:
-					TobBlock.append([-1, 0, 0, 0, 0])
-					Label += 1
-					ImaLabel = Label
-					break
-
+					if SavArr[Neigh[0][1]][Neigh[0][2]] == -1:
+						Stack.append([Neigh[0][1], Neigh[0][2]])
+						SavArr[Neigh[0][1]][Neigh[0][2]] = -2
+						continue
+					elif SavArr[Neigh[0][1]][Neigh[0][2]] == -2:
+						TobBlock.append([-1, 0, 0, 0, 0])
+						Label += 1
+						ImaLabel = Label
+						break
+					else:
+						ImaLabel = SavArr[Neigh[0][1]][Neigh[0][2]]
+						break
 
 			while len(Stack) != 0:
 				LocX = Stack[len(Stack) - 1][0]
 				LocY = Stack[len(Stack) - 1][1]
 				Grey = img[LocX][LocY]
 				Stack.pop()
+				if SavArr[LocX][LocY] != -2 and SavArr[LocX][LocY] != -1:
+					continue
 				SavArr[LocX][LocY] = ImaLabel
 				TobBlock[ImaLabel][1] += Grey
 				TobBlock[ImaLabel][2] += LocX
 				TobBlock[ImaLabel][3] += LocY
 				TobBlock[ImaLabel][4] += 1
 	
-	#Init.ArrOutput(TobBlock)
+	#Init.ArrOutput(SavArr)
 	print("TobBlock = " + str(Label), end = "\n")
-	
+	#print(str([len(img) - 1, len(img[0]) - 1]))
 	for i in range(1, len(TobBlock)):
 		TobBlock[i][1] /= TobBlock[i][4]
 		TobBlock[i][2] /= TobBlock[i][4]
@@ -172,7 +196,7 @@ def Toboggan(img):
 
 
 
-def ProbCal(TobBlock, TobSeed):
+def ProbCal(TobBlock, TobSeed): 
 	Varu = len(TobBlock) - len(TobSeed) - 1
 	Varl = len(TobSeed)
 	Puu = []
@@ -183,24 +207,19 @@ def ProbCal(TobBlock, TobSeed):
 			continue
 		PuuLine = []
 		PulLine = []
-		TTL = 0
-		for j in range(1, len(TobBlock)):
+		for j in range(1, len(TobBlock)): 
+			if i == j:
+				PuuLine.append(0)
+				continue
 			weight = math.exp(- Constant.alpha * pow(TobBlock[i][1] - TobBlock[j][1], 2) - Constant.beta * ( pow(TobBlock[i][2] - TobBlock[j][2], 2) + pow(TobBlock[i][3] - TobBlock[j][3], 2))     )
-			TTL += weight
-			if TobBlock[i][0] == -1:
+			if TobBlock[j][0] == -1:
 				PuuLine.append(weight)
 			else:
 				PulLine.append(weight)
 
-		for p in range(0, len(PuuLine)):
-			PuuLine[p] /= TTL
-
-		for p in range(0, len(PulLine)):
-			PulLine[p] /= TTL
-
 		Puu.append(PuuLine)
 		Pul.append(PulLine)
-	
+
 	if Constant.DEBUG:
 		print("Probability matrix build succeed. Decision matrix building start")
 	return np.array(solve(Puu, Pul))
@@ -209,7 +228,10 @@ def ProbCal(TobBlock, TobSeed):
 
 def Decision(TobBlock, ProbArr):
 	tem = 0
-	for i in range(0, len(TobBlock)):
+	var = 1
+	print(len(ProbArr), len(TobBlock))
+	for i in range(1, len(TobBlock)):
+		#print(var)
 		if TobBlock[i][0] == -1:
 			MaxLoc = 0
 			MaxVal = 0
@@ -218,22 +240,26 @@ def Decision(TobBlock, ProbArr):
 					MaxVal = ProbArr[tem][j]
 					MaxLoc = j
 			TobBlock[i][0] = MaxLoc
-		else:
-			TobBlock[i][0] = tem
 			tem += 1
+		else:
+			TobBlock[i][0] = var
+			var += 1
 
 	return TobBlock
 
 
 
 def TobBoundary(TobImage, TobBlock, BlockArea):
+	Init.ArrOutput(TobImage)
+	import time
+	time.sleep(1)
 	for i in range(0, len(TobImage)):
 		for j in range(0, len(TobImage[i])):
 			if TobImage[i][j] == -1:
 				continue
-
 			TobImage[i][j] = TobBlock[TobImage[i][j]][0]
 	
+	Init.ArrOutput(TobImage)
 	OutImg = [[255 for n in range(len(TobImage[1]))] for i in range(len(TobImage))]
 	for i in range(0, BlockArea):
 		BlankImg = [[0 for n in range(len(TobImage[1]))] for i in range(len(TobImage))]
