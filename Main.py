@@ -43,7 +43,6 @@ def Main():
 	"""
 	if DEBUG:
 		print("Pretreatment")
-
 	img = np.array(Image.open(Constant.ImageName).convert("L"))
 
 
@@ -114,7 +113,7 @@ def Main():
 
 
 
-def Main3():
+def Main3(FileName):
 	"""
 	#==============================================================================
 	#Initial
@@ -123,7 +122,7 @@ def Main3():
 	if DEBUG:
 		print("Pretreatment")
 
-	img = np.array(Image.open(Constant.ImageName).convert("L"))
+	img = np.array(Image.open(FileName).convert("L"))
 
 
 
@@ -134,7 +133,15 @@ def Main3():
 	"""
 	TobImg, TobBlock = Algorithm.Toboggan(img)
 
+	if len(TobBlock) <= 3:
+		for i in range(0, len(TobBlock)):
+			TobBlock[i][0] = i
+		OutImg = Algorithm.TobBoundary(TobImg, TobBlock, len(TobBlock))
+		OutImg = Pretreatment.CombineFigures(img, OutImg, 1)
+		misc.imsave("Saving/result" + str(Init.GetTime()) + ".png", OutImg)	
+		return
 	
+
 
 	"""
 	#==============================================================================
@@ -155,7 +162,7 @@ def Main3():
 	#Gap Statistic
 	optimalK = OptimalK(parallel_backend = 'joblib')
 	N_Cluster = optimalK(np.array(BlockData), cluster_array = np.arange(1, 50))
-	
+
 	if DEBUG:
 		print(N_Cluster)
 
@@ -181,15 +188,131 @@ def Main3():
 	#==============================================================================
 	"""
 	OutImg = Pretreatment.CombineFigures(img, OutImg, 1)
-	misc.imsave("Saving/result.png", OutImg)	
+	misc.imsave("Saving/result" + str(Init.GetTime()) + ".png", OutImg)	
+
+
+
+def Main31(FileName):
+	"""
+	#==============================================================================
+	#Initial
+	#==============================================================================
+	"""
+	if DEBUG:
+		print("Pre-treatment")
+
+	img = np.array(Image.open(FileName).convert("L"))
+
+
+	"""
+	#==============================================================================
+	#Gap Statistic and K-means
+	#==============================================================================
+	"""
+	#==============================================================================
+	#Get Data
+	BlockData = []
+	for i in range(0, len(img)):
+		for j in range(0, len(img[i])):
+			BlockData.append([float(i), float(j), float(img[i][j])])
+
+	if DEBUG:
+		print("Algorithm begin")
+	#==============================================================================
+	#Gap Statistic
+	optimalK = OptimalK(parallel_backend = 'joblib')
+	N_Cluster = optimalK(np.array(BlockData), cluster_array = np.arange(1, 50))
+
+	if DEBUG:
+		print(N_Cluster)
+
+
+	#==============================================================================
+	#Build K-means
+	KMResult = KMeans(n_clusters = N_Cluster, random_state = 10).fit_predict(BlockData)
+	if DEBUG:
+		print("Output")
+	TemImg = [[[0 for n in range(len(img[0]))] for n in range(len(img))] for n in range(N_Cluster)]
+	for i in range(0, len(KMResult)):
+		Figure = KMResult[i]
+		LocX = int(BlockData[i][0] + 0.1)
+		LocY = int(BlockData[i][1] + 0.1)
+		TemImg[Figure][LocX][LocY] = 255
+
+	OutImg = np.array([[0 for n in range(len(img[0]))] for n in range(len(img))])
+
+	for i in range(0, N_Cluster):
+		OutImg += np.array(cv2.Canny(np.uint8(TemImg[i]), 85, 170))
+	for i in range(0, len(OutImg)):
+		for j in range(0, len(OutImg[i])):
+			OutImg[i][j] = 255 - min(OutImg[i][j], 255)
+
+	"""
+	#==============================================================================
+	#Decision
+	#==============================================================================
+	"""
+	OutImg = Pretreatment.CombineFigures(img, OutImg, 1)
+	misc.imsave("Saving/result" + str(Init.GetTime()) + ".png", OutImg)	
+
+
+
+def Main4(FileName):
+	"""
+	#==============================================================================
+	#Initial
+	#==============================================================================
+	"""
+	if DEBUG:
+		print("Pretreatment")
+
+	img = np.array(Image.open(FileName).convert("L"))
+
+
+
+	"""
+	#==============================================================================
+	#Toboggan Algorithm
+	#==============================================================================
+	"""
+	TobImg, TobBlock = Algorithm.Toboggan(img)
+
+	print("sb")
+	OutImg = [[255 for n in range(len(img[1]))] for n in range(len(img))]
+	for p in range(0, len(OutImg)):
+		for q in range(0, len(OutImg[p])):
+			if TobImg[p][q] % 20 == 0:
+				OutImg[p][q] = 0
 
 
 
 
+	"""
+	#==============================================================================
+	#Decision
+	#==============================================================================
+	"""
+	OutImg = Pretreatment.CombineFigures(img, OutImg, 1)
+	misc.imsave("Saving/result" + str(Init.GetTime()) + ".png", OutImg)	
 
 
 
-Main3()
+
+#Main("Figure/Easy.png")
+#Main("Figure/Aznyan.png")
+#Main("Figure/Caman.bmp")
+#Main("Figure/Difficult.png")
+#Main("Figure/Factory.png")
+#Main("Figure/Heart.png")
+
+
+Main31("Figure/Inp1.jpg")
+Main31("Figure/Inp3.jpg")
+Main31("Figure/Inp4.jpg")
+Main31("Figure/Inp5.jpg")
+Main31("Figure/Inp7.jpg")
+Main31("Figure/Inp8.jpg")
+Main31("Figure/Inp9.jpg")
 
 
 

@@ -11,7 +11,7 @@
 
 #==============================================================================
 #File choosing
-ImageName = "Figure/aznyan.jpg"
+ImageName = "Figure/Aznyan.png"
 #This is the file you want the algorithm working on it.
 
 #==============================================================================
